@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import java.util.List;
 
 @Controller
+@RequestMapping("/")
 public class BookController {
 
     private BookRepository bookRepository;
@@ -23,7 +24,7 @@ public class BookController {
         this.bookRepository = bookRepository;
     }
 
-    @RequestMapping(value = "/{reader}", method = RequestMethod.GET)
+    @RequestMapping(value = "/readers/{reader}", method = RequestMethod.GET)
     public String readerBooks(@PathVariable String reader, Model model) {
         List<Book> readerBookList = bookRepository.findByReader(reader);
         if (!StringUtils.isEmpty(readerBookList)) {
@@ -32,10 +33,10 @@ public class BookController {
         return "readerBooks";
     }
 
-    @RequestMapping(value = "/{reader}", method = RequestMethod.POST)
+    @RequestMapping(value = "/readers/{reader}", method = RequestMethod.POST)
     public String addToReadingList(@PathVariable String reader, Model model, Book book) {
         book.setReader(reader);
         bookRepository.save(book);
-        return "redirect:/{reader}";
+        return "redirect:/readers/{reader}";
     }
 }
