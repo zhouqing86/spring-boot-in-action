@@ -17,9 +17,10 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
+apply plugin: 'war'
 apply plugin: 'org.springframework.boot'
 
-jar {
+war {
 	baseName = 'inaction'
 	version = '0.0.1-SNAPSHOT'
 }
