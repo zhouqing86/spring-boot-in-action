@@ -1,5 +1,6 @@
 package com.wendll.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -9,6 +10,8 @@ public class Book {
     @Id
     @GeneratedValue
     private Long id;
+
+    @Column(name="reader_username")
     private String reader;
     private String isbn;
     private String title;
