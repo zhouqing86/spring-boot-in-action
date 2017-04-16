@@ -1,8 +1,8 @@
 ---
 - hosts: web
-  remote_user: root
+  remote_user: aicaideren
   become: yes
   become_method: sudo
-  tasks:
-  - name: test command
-    shell: echo 'aaaa'
+
+  roles:
+    - java8
