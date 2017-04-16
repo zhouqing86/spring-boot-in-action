@@ -2,7 +2,6 @@ package com.wendll.controller;
 
 import com.wendll.model.Book;
 import com.wendll.repository.BookRepository;
-import org.codehaus.groovy.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
