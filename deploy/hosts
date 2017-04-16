@@ -1,0 +1,5 @@
+[web]
+52.221.229.160  ansible_connection=ssh  ansible_user=ubuntu
+
+[web:vars]
+ansible_python_interpreter=/usr/bin/python3

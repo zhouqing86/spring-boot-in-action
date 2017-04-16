@@ -1,0 +1,8 @@
+---
+- hosts: web
+  remote_user: root
+  become: yes
+  become_method: sudo
+  tasks:
+  - name: test command
+    shell: echo 'aaaa'
