@@ -12,6 +12,7 @@ out/
 .springBeans
 
 ### IntelliJ IDEA ###
+*.retry
 .idea
 *.iws
 *.iml

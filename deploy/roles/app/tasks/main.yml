@@ -1,0 +1,11 @@
+---
+- name: clone repository
+  git:
+    repo: https://github.com/zhouqing86/spring-boot-in-action.git
+    dest: /home/aicaideren/app
+    refspec: '+refs/pull/*:refs/heads/*'
+
+- name: Run apps
+  shell: ./gradlew bootRun
+  args:
+    chdir: /home/aicaideren/app
