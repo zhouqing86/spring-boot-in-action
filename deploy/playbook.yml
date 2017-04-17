@@ -1,8 +1,8 @@
 ---
 - hosts: web
-  remote_user: aicaideren
   become: yes
   become_method: sudo
+  become_user: aicaideren
 
   roles:
     - java8
