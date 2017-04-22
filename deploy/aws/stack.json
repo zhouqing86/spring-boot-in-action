@@ -1,0 +1,78 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "An example template",
+  "Parameters": {
+    "InstanceAMI": {
+      "Type": "AWS::EC2::Image::Id",
+      "Default": "ami-ee7bca8d"
+    },
+    "InstanceType": {
+      "Type": "String",
+      "Description": "Instance Type",
+      "Default": "t2.micro"
+    },
+    "VpcId": {
+      "Type": "AWS::EC2::VPC::Id",
+      "Default": "vpc-2e87e74a"
+    },
+    "Subnet": {
+      "Type": "String",
+      "Default": "subnet-e956069f"
+    }
+  },
+  "Resources": {
+    "myInstance": {
+      "Type" : "AWS::EC2::Instance",
+      "Properties": {
+        "AvailabilityZone": "ap-southeast-1b",
+        "ImageId": {
+          "Ref": "InstanceAMI"
+        },
+        "InstanceInitiatedShutdownBehavior": "terminate",
+        "KeyName": "MyAWSInstanceKey",
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "SubnetId": {
+          "Ref": "Subnet"
+        },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "\n",
+              [
+                "#!/bin/bash",
+                "set -x",
+                "sudo -b shutdown -P +55",
+                ""
+              ]
+            ]
+          }
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                " ",
+                [
+                  "Instance Create Test",
+                  {
+                    "Ref": "AWS::StackName"
+                  }
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "instance": {
+      "Value": {
+        "Ref": "myInstance"
+      }
+    }
+  }
+}
