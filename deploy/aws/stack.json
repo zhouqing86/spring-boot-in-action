@@ -18,6 +18,18 @@
     "Subnet": {
       "Type": "String",
       "Default": "subnet-e956069f"
+    },
+    "IAMPath": {
+      "Type": "String",
+      "Default": "/spring-boot-in-action/"
+    },
+    "EnvironmentName": {
+      "Type": "String",
+      "Default": "staging"
+    },
+    "ArtifactLocation": {
+      "Type": "String",
+      "Default": "s3://aicaideren/artifacts/spring-boot-in-action-deploy.tar.gz"
     }
   },
   "Resources": {
@@ -67,14 +79,134 @@
         "VpcId": { "Ref": "VpcId" }
       }
     },
+    "AppServerRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties" : {
+        "Path": { "Ref": "IAMPath" },
+        "AssumeRolePolicyDocument": {
+          "Version" : "2012-10-17",
+          "Statement": [ {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": [ "ec2.amazonaws.com" ]
+            },
+            "Action": [ "sts:AssumeRole" ]
+          } ]
+        },
+        "Policies": [ {
+          "PolicyName": "AppRolePolicy",
+          "PolicyDocument": {
+            "Version" : "2012-10-17",
+            "Statement": [
+              { "Effect": "Allow", "Resource": "*", "Action": "cloudformation:DescribeStackResource" },
+              { "Effect": "Allow", "Resource": "*", "Action": "cloudwatch:PutMetricData" },
+              { "Effect": "Allow", "Resource": "*", "Action": "s3:Get*" },
+              { "Effect": "Allow", "Resource": "*", "Action": "s3:Put*" },
+              { "Effect": "Allow", "Resource": "*", "Action": "s3:List*" }
+             ]
+          }
+        } ]
+      }
+    },
+    "AppServerInstanceProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties" : {
+        "Path": { "Ref": "IAMPath" },
+        "Roles": [ {  "Ref": "AppServerRole" } ]
+      }
+    },
     "myInstance": {
       "Type" : "AWS::EC2::Instance",
+      "Metadata" : {
+        "AWS::CloudFormation::Init":{
+          "configSets" : {
+            "default": ["copyAnsibleScript", "allowLocalSSH", "runAnsible"]
+          },
+          "copyAnsibleScript" : {
+            "packages": {
+              "apt": {
+                "awscli": []
+              }
+            },
+            "commands": {
+              "1-copy-artifacts": {
+                "command": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "/usr/bin/aws s3 cp",
+                      " ",
+                      { "Ref": "ArtifactLocation" },
+                      " ",
+                      "/tmp/artifacts-ansible.tar.gz"
+                    ]
+                  ]
+                }
+              },
+              "2-uncompress": {
+                "command": "tar zxvf /tmp/artifacts-ansible.tar.gz -C /tmp"
+              }
+            }
+          },
+          "allowLocalSSH": {
+            "commands": {
+              "1-gen-ssh": {
+                "command": "ssh-keygen -f id_rsa -t rsa -N ''",
+                "cwd": "~/.ssh"
+              },
+              "2-authority": {
+                "command": "cat id_rsa.pub >> authorized_keys",
+                "cwd": "~/.ssh"
+              },
+              "3-know-hosts": {
+                "command": "ssh-keyscan -H localhost >> known_hosts",
+                "cwd": "~/.ssh"
+              }
+            }
+          },
+          "runAnsible": {
+            "packages": {
+              "apt": {
+                "ansible": []
+              }
+            },
+            "groups": {
+              "app": {}
+            },
+            "users": {
+              "aicaideren": {
+                "groups": ["app"],
+                "homeDir": "/home/aicaideren"
+              }
+            },
+            "commands": {
+              "1-create-inventory": {
+                "command": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "echo '[",
+                      { "Ref": "EnvironmentName" },
+                      "]\nlocalhost' > /tmp/deploy/inventory.ini\n"
+                    ]
+                  ]
+                }
+              },
+              "2-run-ansible": {
+                "command": "/usr/bin/ansible all -i inventory.ini -m ping",
+                "cwd": "/tmp/deploy"
+              }
+            }
+          }
+        }
+      },
       "Properties": {
         "AvailabilityZone": "ap-southeast-1b",
         "ImageId": {
           "Ref": "InstanceAMI"
         },
         "InstanceInitiatedShutdownBehavior": "terminate",
+        "IamInstanceProfile": { "Ref": "AppServerInstanceProfile" },
         "KeyName": "MyAWSInstanceKey",
         "InstanceType": {
           "Ref": "InstanceType"
@@ -85,11 +217,18 @@
         "UserData": {
           "Fn::Base64": {
             "Fn::Join": [
-              "\n",
+              "",
               [
-                "#!/bin/bash",
-                "set -x",
-                "sudo -b shutdown -P +55",
+                "#!/bin/bash\n",
+                "set -x\n",
+                "apt-get update\n",
+                "apt-get -y install python-setuptools\n",
+                "easy_install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
+                "/usr/local/bin/cfn-init -v",
+                " -s ", { "Ref" : "AWS::StackName" },
+                " -r myInstance",
+                " -c default",
+                " --region=", { "Ref" : "AWS::Region" }, "\n",
                 ""
               ]
             ]
