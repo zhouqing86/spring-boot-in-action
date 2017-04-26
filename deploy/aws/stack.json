@@ -109,7 +109,7 @@
               { "Effect": "Allow", "Resource": "*", "Action": "s3:Get*" },
               { "Effect": "Allow", "Resource": "*", "Action": "s3:Put*" },
               { "Effect": "Allow", "Resource": "*", "Action": "s3:List*" }
-             ]
+            ]
           }
         } ]
       }
@@ -121,9 +121,9 @@
         "Roles": [ {  "Ref": "AppServerRole" } ]
       }
     },
-    "myInstance": {
-      "Type" : "AWS::EC2::Instance",
-      "Metadata" : {
+    "PlatformLaunchConfiguration": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Metadata": {
         "AWS::CloudFormation::Init":{
           "configSets" : {
             "default": ["copyAnsibleScript", "allowLocalSSH", "runAnsible"]
@@ -213,18 +213,13 @@
         }
       },
       "Properties": {
-        "AvailabilityZone": "ap-southeast-1b",
         "ImageId": {
           "Ref": "InstanceAMI"
         },
-        "InstanceInitiatedShutdownBehavior": "terminate",
         "IamInstanceProfile": { "Ref": "AppServerInstanceProfile" },
         "KeyName": "MyAWSInstanceKey",
         "InstanceType": {
           "Ref": "InstanceType"
-        },
-        "SubnetId": {
-          "Ref": "Subnet"
         },
         "UserData": {
           "Fn::Base64": {
@@ -238,7 +233,7 @@
                 "easy_install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
                 "/usr/local/bin/cfn-init -v",
                 " -s ", { "Ref" : "AWS::StackName" },
-                " -r myInstance",
+                " -r PlatformLaunchConfiguration",
                 " -c default",
                 " --region=", { "Ref" : "AWS::Region" }, "\n",
                 ""
@@ -246,34 +241,52 @@
             ]
           }
         },
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": {
-              "Fn::Join": [
-                " ",
-                [
-                  "Instance Create Test",
-                  {
-                    "Ref": "AWS::StackName"
-                  }
-                ]
-              ]
-            }
-          }
-        ],
-        "SecurityGroupIds": [
+        "SecurityGroups": [
           { "Ref": "SSHSecurityGroup" },
           { "Ref": "HTTPSecurityGroup" }
         ]
       }
+    },
+    "PlatformScalingGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "AvailabilityZones": ["ap-southeast-1a", "ap-southeast-1b"],
+        "LaunchConfigurationName": { "Ref": "PlatformLaunchConfiguration" },
+        "MaxSize": "1",
+        "MinSize": "0",
+        "DesiredCapacity": "1",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "spring-boot-in-action",
+            "PropagateAtLaunch": true
+          }
+        ]
+      }
+    },
+    "ScheduledActionUp": {
+      "Type": "AWS::AutoScaling::ScheduledAction",
+      "Properties": {
+        "AutoScalingGroupName": { "Ref": "PlatformScalingGroup" },
+        "MaxSize": "1",
+        "MinSize": "1",
+        "Recurrence": "0 19 * * *"
+      }
+    },
+    "ScheduledActionDown": {
+      "Type": "AWS::AutoScaling::ScheduledAction",
+      "Properties": {
+        "AutoScalingGroupName": { "Ref": "PlatformScalingGroup" },
+        "MaxSize": "0",
+        "MinSize": "0",
+        "Recurrence": "0 8 * * *"
+      }
     }
   },
   "Outputs": {
-    "instance": {
-      "Value": {
-        "Ref": "myInstance"
-      }
+    "AMI": {
+      "Description": "The ami that was used",
+      "Value": { "Ref": "InstanceAMI" }
     }
   }
 }
