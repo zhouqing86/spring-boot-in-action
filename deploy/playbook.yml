@@ -2,8 +2,9 @@
 - hosts: localhost
   become: yes
   become_method: sudo
-  become_user: aicaideren
+  become_user: root
 
   roles:
     - java8
+    - tomcat8
     - app

@@ -52,9 +52,9 @@ aws cloudformation create-stack --stack-name teststack --template-body file:////
 注意在stack.json中我们创建了IAM用户，所以要加上`--capabilities CAPABILITY_IAM`。
 
 ### 本地远程执行ansible脚本
-注意在~/.ssh/的目录下有MyAWSInstanceKey.pem文件, 并修改hosts文件为EC2的IP地址:
+注意在~/.ssh/的目录下有MyAWSInstanceKey.pem文件, 并修改hosts文件为EC2的IP地址, 修改playbook.yml中hosts配置为web.
 
 ```
 cd deploy
-ansible-playbook playbook.yml
+ansible-playbook -i hosts playbook.yml
 ```

@@ -66,6 +66,12 @@
             "FromPort": "80",
             "ToPort": "80",
             "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "8080",
+            "ToPort": "8080",
+            "CidrIp": "0.0.0.0/0"
           }
         ],
         "SecurityGroupEgress": [
@@ -180,7 +186,13 @@
               }
             },
             "commands": {
-              "1-create-inventory": {
+              "1-change-login-shell": {
+                "command": "chsh -s /bin/bash aicaideren"
+              },
+              "2-create-home": {
+                "command": "mkhomedir_helper aicaideren"
+              },
+              "3-create-inventory": {
                 "command": {
                   "Fn::Join": [
                     "",
@@ -192,8 +204,8 @@
                   ]
                 }
               },
-              "2-run-ansible": {
-                "command": "/usr/bin/ansible all -i inventory.ini -m ping",
+              "4-run-ansible": {
+                "command": "/usr/bin/ansible-playbook -i inventory.ini playbook.yml",
                 "cwd": "/tmp/deploy"
               }
             }

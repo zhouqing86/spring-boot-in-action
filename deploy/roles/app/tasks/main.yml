@@ -6,6 +6,13 @@
     refspec: '+refs/pull/*:refs/heads/*'
 
 - name: Run apps
-  shell: ./gradlew bootRun
+  shell: ./gradlew build
   args:
     chdir: /home/aicaideren/app
+
+- name: move war to tomcat directory
+  shell: cp -rf build/libs/*.war /opt/tomcat/webapps
+  args:
+    chdir: /home/aicaideren/app
+  notify:
+    - reload tomcat
