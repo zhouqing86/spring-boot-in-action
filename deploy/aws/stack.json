@@ -270,7 +270,7 @@
         "AutoScalingGroupName": { "Ref": "PlatformScalingGroup" },
         "MaxSize": "1",
         "MinSize": "1",
-        "Recurrence": "0 19 * * *"
+        "Recurrence": "0 11 * * *"
       }
     },
     "ScheduledActionDown": {
@@ -279,7 +279,7 @@
         "AutoScalingGroupName": { "Ref": "PlatformScalingGroup" },
         "MaxSize": "0",
         "MinSize": "0",
-        "Recurrence": "0 8 * * *"
+        "Recurrence": "0 1 * * *"
       }
     }
   },
