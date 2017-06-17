@@ -1,0 +1,8 @@
+---
+- name: reload systemd
+  become_user: root
+  command: systemctl daemon-reload
+
+- name: reload tomcat
+  become_user: root
+  command: systemctl restart tomcat

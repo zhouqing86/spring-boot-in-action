@@ -25,12 +25,3 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
-deploy/roles/tomcat8/.travis.yml
-deploy/roles/tomcat8/README.md
-deploy/roles/tomcat8/defaults/
-deploy/roles/tomcat8/files/
-deploy/roles/tomcat8/handlers/
-deploy/roles/tomcat8/meta/
-deploy/roles/tomcat8/tasks/
-deploy/roles/tomcat8/tests/
-src/main/webapp/

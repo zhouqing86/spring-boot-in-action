@@ -1,0 +1,40 @@
+---
+- name: create tomcat group
+  become_user: root
+  group:
+    name: tomcat
+    state: present
+
+- name: create tomcat name
+  become_user: root
+  user:
+    name: tomcat
+    shell: /bin/false
+    group: tomcat
+
+- name: create directory to run tomcat
+  become_user: root
+  file:
+    path: /opt/tomcat
+    owner: tomcat
+    group: tomcat
+    mode: 0755
+    state: directory
+
+- name: download apache package
+  shell: aws s3 cp s3://aicaideren/tomcat/apache-tomcat-8.5.15.tar.gz /tmp/tomcat8.tar.gz
+
+- name: unarchive the apache package
+  become_user: tomcat
+  shell: tar zxvf /tmp/tomcat8.tar.gz -C /opt/tomcat --strip-components=1
+
+- name: copy service.j2 to tomcat.services
+  become_user: root
+  template:
+    src: ../templates/service.j2
+    dest: /etc/systemd/system/tomcat.service
+    mode: 0644
+  notify:
+    - reload systemd
+    - reload tomcat
+
