@@ -42,15 +42,15 @@ repositories {
 
 
 dependencies {
-	compile('org.springframework.boot:spring-boot-starter-web')
-    compile('org.springframework.boot:spring-boot-starter-data-jpa')
-    compile('org.springframework.boot:spring-boot-starter-jdbc')
-	runtime('mysql:mysql-connector-java')
-	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
-	compile('org.springframework.boot:spring-boot-starter-thymeleaf')
+	compile('org.springframework.boot:spring-boot-starter-web:2.0.0.BUILD-SNAPSHOT')
+    compile('org.springframework.boot:spring-boot-starter-data-jpa:2.0.0.BUILD-SNAPSHOT')
+    compile('org.springframework.boot:spring-boot-starter-jdbc:2.0.0.BUILD-SNAPSHOT')
+	runtime('mysql:mysql-connector-java:5.1.44')
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat:2.0.0.BUILD-SNAPSHOT'
+	compile('org.springframework.boot:spring-boot-starter-thymeleaf:2.0.0.BUILD-SNAPSHOT')
     compile("org.flywaydb:flyway-core:4.0.3")
-	runtime('org.springframework.boot:spring-boot-devtools')
-	runtime('com.h2database:h2')
-	testCompile('org.springframework.boot:spring-boot-starter-test')
+	runtime('org.springframework.boot:spring-boot-devtools:2.0.0.BUILD-SNAPSHOT')
+	runtime('com.h2database:h2:1.4.196')
+	testCompile('org.springframework.boot:spring-boot-starter-test:2.0.0.BUILD-SNAPSHOT')
     testCompile("org.seleniumhq.selenium:selenium-java:2.45.0")
 }
