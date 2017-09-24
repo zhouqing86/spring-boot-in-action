@@ -78,6 +78,14 @@ cd deploy
 ansible-playbook -i hosts playbook.yml
 ```
 
+或者
+```
+deploy/deploy-to-production.sh
+```
+
+但是前提是保证本地存在~/.ssh/MyAWSInstanceKey.pem
+
+
 ### build与执行
 
 build jar包，内嵌tomcat容器:
