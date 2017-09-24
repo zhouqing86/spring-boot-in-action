@@ -1,5 +1,5 @@
 ---
-- hosts: localhost
+- hosts: web
   become: yes
   become_method: sudo
   become_user: root
@@ -7,4 +7,5 @@
   roles:
     - java8
     - tomcat8
+    - mysql
     - app

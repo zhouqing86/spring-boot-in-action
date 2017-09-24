@@ -2,17 +2,22 @@
 - name: clone repository
   git:
     repo: https://github.com/zhouqing86/spring-boot-in-action.git
-    dest: /home/aicaideren/app
+    dest: "{{ app_dir }}"
     refspec: '+refs/pull/*:refs/heads/*'
 
-- name: Run apps
+- name: build apps
   shell: ./gradlew build
   args:
-    chdir: /home/aicaideren/app
+    chdir: "{{ app_dir }}"
 
-- name: move war to tomcat directory
-  shell: cp -rf build/libs/*.war /opt/tomcat/webapps
-  args:
-    chdir: /home/aicaideren/app
-  notify:
-    - reload tomcat
+- name: create user for this app
+  user: name=myapp password={{ myapp_password }}
+
+- name: copy systemd service to system
+  become: yes
+  template:
+    src: spring-boot-in-action.service.j2
+    dest: /etc/systemd/system/spring-boot-in-action.service
+
+- name: start app
+  shell: systemctl enable spring-boot-in-action.service

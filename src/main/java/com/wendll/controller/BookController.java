@@ -34,7 +34,7 @@ public class BookController {
 
     @RequestMapping(value = "/readers/{reader}", method = RequestMethod.POST)
     public String addToReadingList(@PathVariable String reader, Model model, Book book) {
-        book.setReader(reader);
+        book.setReader("craig");
         bookRepository.save(book);
         return "redirect:/readers/{reader}";
     }
